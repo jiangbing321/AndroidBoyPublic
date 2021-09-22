@@ -871,7 +871,7 @@ class WidgetTracerList(QWidget, Ui_Form):
             trace.mVisual = trace.mMarked
             return
         # level or msg
-        hasFound = self._mFilterLogInclude.lower() in item.text().lower()
+        hasFound = self._mFilterLogInclude.lower() in trace.mMessage.lower()
         hasInTag = self._mFilterLogInclude.lower() in trace.mTag.lower()
         if (not hasFound and not hasInTag) or trace.mLevel < self._mFilterLogLevel:
             trace.mVisual = False
