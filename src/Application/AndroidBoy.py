@@ -10,7 +10,8 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QObject, Qt, QTimer, QByteArray, QMimeData
 from PyQt5.QtGui import QMouseEvent, QPalette, QDragEnterEvent, QContextMenuEvent, QCursor, QIcon, QEnterEvent, \
     QKeyEvent
-from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QFileDialog, QMenu, QTabBar, QPushButton, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QFileDialog, QMenu, QTabBar, QPushButton, QLineEdit, \
+    QToolButton
 
 from src.Common import QTHelper
 from src.Common.Logger import *
@@ -130,6 +131,8 @@ class AndroidBoy(QWidget, Ui_Form):
 
                 if mouse.button() == QtCore.Qt.MiddleButton:
                     self._removeTabView(tabIndex)
+                if mouse.button() == QtCore.Qt.RightButton:
+                    self._MenuForTabBar(QContextMenuEvent(QContextMenuEvent.Mouse, QCursor().pos()), tabIndex)
             elif eventType == QtCore.QEvent.Enter:
                 enter = QEnterEvent(event)
                 index = self.mTabBar.tabAt(enter.pos())
@@ -151,6 +154,29 @@ class AndroidBoy(QWidget, Ui_Form):
                     self.mEditTabName.hide()
 
         return super(AndroidBoy, self).eventFilter(source, event)
+
+    def _MenuForTabBar(self, event: QContextMenuEvent, tabIndex):
+        menu = QMenu()
+        actionCloseAll = menu.addAction("Close All")
+        actionCloseOthers = menu.addAction( "Close Others")
+        action = menu.exec_(event.pos())
+        view = None
+        if action is None:
+            return
+        elif action == actionCloseAll:
+            leftCount = self.tabMain.count() - 1
+            for idx in range(0, leftCount):
+                self._removeTabView(0)
+        elif action == actionCloseOthers:
+            rightCount = self.tabMain.count() - tabIndex - 1
+            leftCount = tabIndex
+            for idx in range(0, rightCount):
+                self._removeTabView(tabIndex+1)
+            for idx in range(0, leftCount):
+                self._removeTabView(0)
+        if view is not None:
+            pass
+        return
 
     def _MenuForAdd(self, event: QContextMenuEvent):
         menu = QMenu()
@@ -375,6 +401,8 @@ class AndroidBoy(QWidget, Ui_Form):
         if index == self.tabMain.count() - 1:
             return
         view = self.tabMain.widget(index)
+        if view is None:
+            return
         view.close()
         self.tabMain.removeTab(index)
         if index-1 < 0:
