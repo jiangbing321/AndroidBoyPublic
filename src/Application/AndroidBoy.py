@@ -27,7 +27,6 @@ from src.View.ViewPicture import ViewPicture
 from src.View.ViewWBXTraceFile import ViewWBXTraceFile
 from src.View.ViewDumpFile import ViewDumpFile
 from src.View.ViewTraceParser import ViewTraceParser
-from src.View.ViewJsonFormat import ViewJsonFormat
 
 
 class AndroidBoy(QWidget, Ui_Form):
@@ -186,7 +185,6 @@ class AndroidBoy(QWidget, Ui_Form):
         actionADBLogcat = menu.addAction(uiTheme.iconLogcat, "ADB Logcat")
         actionADBCommand = menu.addAction(uiTheme.iconCommand, "ADB Command")
         actionTracerParser = menu.addAction(uiTheme.iconLogFile, "Trace Parser")
-        actionJsonFormat = menu.addAction(uiTheme.iconLogFile, "Json Format")
         action = menu.exec_(event.pos())
 
         view = None
@@ -214,10 +212,6 @@ class AndroidBoy(QWidget, Ui_Form):
             view = self._getViewByType(ViewTraceParser.__name__)
             if view is None:
                 self._addTabView(ViewTraceParser(self), uiTheme.iconLogcat, "Trace Parser")
-        elif action == actionJsonFormat:
-            view = self._getViewByType(ViewJsonFormat.__name__)
-            if view is None:
-                self._addTabView(ViewJsonFormat(self), uiTheme.iconLogcat, "Json Format")
         if view is not None:
             self.tabMain.setCurrentWidget(view)
         return
