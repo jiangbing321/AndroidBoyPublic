@@ -310,8 +310,36 @@ class DialogMailDetail(QDialog, Ui_Dialog):
         elif errorInfo[0] == _ErrorTypeInList.normal:
             # locate file line
             path = errorInfo[1]
-            self._mNormalLogsDialog.addFileView(path)
-            self._mNormalLogsDialog.show()
+            if re.search(r".zip.*wbt$", path, flags=re.IGNORECASE):
+                fileName = path.split("?")[1]
+            else:
+                fileName = os.path.basename(path)
+
+            hasTabOpened = False
+            isWbtFile = re.search(r".wbt$", fileName, flags=re.IGNORECASE)
+            for i in range(0, self.tabAttachments.count()):
+                tabTitle = self.tabAttachments.tabText(i)
+                if '['+fileName + ']' == tabTitle or (not isWbtFile and fileName == tabTitle):
+                    view = self.tabAttachments.widget(i)
+                    self.tabAttachments.setCurrentWidget(view)
+                    hasTabOpened = True
+                    break
+
+            if not hasTabOpened and isWbtFile:
+                # open wbt file
+                path = errorInfo[1]
+                zipFilePath = path.split("?")[0]
+                wbxFileName = path.split("?")[1]
+                if re.search(r".zip$", zipFilePath, flags=re.IGNORECASE)\
+                        and re.search(r".wbt$", wbxFileName, flags=re.IGNORECASE):
+                    zipFile = zipfile.ZipFile(zipFilePath)
+                    fileData = zipFile.read(wbxFileName)
+                    view = ViewWBXTraceFile(self)
+                    view.openTraceData(fileData, view.DATA_WBT)
+                    newTab = self.tabAttachments.insertTab(self.tabAttachments.count(), view, '['+wbxFileName + ']')
+                    self.tabAttachments.setCurrentIndex(newTab)
+            # self._mNormalLogsDialog.addFileView(path)
+            # self._mNormalLogsDialog.show()
         return
 
     def _openAttachment(self, path):

@@ -121,7 +121,11 @@ class DialogNormalLogs(QDialog, Ui_Dialog):
                     view.openTraceData(fileData, view.DATA_LGF)
                 elif re.search(r".dmp$", subFileName, flags=re.IGNORECASE):
                     Logger.i(appModel.getAppTag(), f"will open: {subFileName} in {fileName}")
-                    fileData = zipFile.read(subFileName)
+                    try:
+                        fileData = zipFile.read(subFileName)
+                    except Exception as e:
+                        Logger.e(appModel.getAppTag(), f"zipFile.read {subFileName} exception: {e}")
+                        continue
                     view = ViewDumpFile(self)
                     view.openDumpData(fileData, title)
                 elif re.search(fr"{Const.imageFileRegular}$",
